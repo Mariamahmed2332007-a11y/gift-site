@@ -15,15 +15,15 @@ color:#333
 }
 .box{
 max-width:650px;
-margin:25px auto;
+margin:auto;
 padding:20px
 }
 .card{
-background:white;
+background:#fff;
 padding:22px;
 margin-bottom:18px;
 border-radius:20px;
-box-shadow:0 5px 18px #00000012
+box-shadow:0 5px 18px #0001
 }
 h1,h2{text-align:center}
 input,textarea,button{
@@ -37,16 +37,15 @@ font-size:16px
 textarea{min-height:120px}
 button{
 background:#222;
-color:white;
+color:#fff;
 border:0
 }
 .hidden{display:none}
 .msg{text-align:center;margin-top:12px}
-.fileBox{
-border:2px dashed #ddd;
-padding:15px;
-border-radius:15px;
-margin-top:10px
+.file-list{
+margin-top:10px;
+line-height:1.8;
+font-size:14px
 }
 </style>
 </head>
@@ -55,7 +54,6 @@ margin-top:10px
 
 <div class="box">
 
-<!-- LOGIN -->
 <div class="card" id="loginBox">
 <h1>🔐 لوحة التحكم</h1>
 
@@ -70,19 +68,21 @@ placeholder="كلمة السر">
 </div>
 
 
-<!-- ADMIN -->
 <div id="adminPanel" class="hidden">
 
 <div class="card">
 <h1>🎁 إنشاء هدية</h1>
 
-<input id="giftCode"
+<input
+id="giftCode"
 placeholder="كود الهدية">
 
-<input id="giftPassword"
+<input
+id="giftPassword"
 placeholder="كلمة سر العميل">
 
-<input id="giftTitle"
+<input
+id="giftTitle"
 placeholder="عنوان الهدية">
 
 <label>تاريخ بداية العداد</label>
@@ -90,7 +90,7 @@ placeholder="عنوان الهدية">
 
 <textarea
 id="giftMessage"
-placeholder="رسالة الهدية">
+placeholder="اكتبي رسالة الهدية هنا">
 </textarea>
 </div>
 
@@ -98,57 +98,46 @@ placeholder="رسالة الهدية">
 <div class="card">
 <h2>📸 الصور</h2>
 
-<div class="fileBox">
 <input
 type="file"
 id="photos"
 accept="image/*"
 multiple
-onchange="showFiles('photos','photoInfo')">
+onchange="showFiles('photos','photoList')">
 
-<div id="photoInfo"></div>
-</div>
+<div class="file-list" id="photoList"></div>
 </div>
 
 
 <div class="card">
 <h2>🎵 الأغنية</h2>
 
-<div class="fileBox">
 <input
 type="file"
 id="audio"
 accept="audio/*"
-onchange="showFiles('audio','audioInfo')">
+onchange="showFiles('audio','audioList')">
 
-<div id="audioInfo"></div>
-</div>
+<div class="file-list" id="audioList"></div>
 </div>
 
 
 <div class="card">
 <h2>🎥 الفيديو</h2>
 
-<div class="fileBox">
 <input
 type="file"
 id="video"
 accept="video/*"
-onchange="showFiles('video','videoInfo')">
+onchange="showFiles('video','videoList')">
 
-<div id="videoInfo"></div>
-</div>
+<div class="file-list" id="videoList"></div>
 </div>
 
 
 <div class="card">
-
-<button onclick="saveGift()">
-💾 حفظ بيانات الهدية
-</button>
-
+<button onclick="prepareGift()">💾 تجهيز الهدية</button>
 <div class="msg" id="saveMsg"></div>
-
 </div>
 
 </div>
@@ -158,7 +147,6 @@ onchange="showFiles('video','videoInfo')">
 <script>
 
 const ADMIN_PASSWORD = "مريوم";
-
 
 function login(){
 
@@ -182,36 +170,32 @@ document.getElementById("loginMsg").textContent =
 }
 
 
-function showFiles(inputId,infoId){
+function showFiles(inputId,listId){
 
 const input =
 document.getElementById(inputId);
 
-const info =
-document.getElementById(infoId);
+const list =
+document.getElementById(listId);
 
-if(!input.files.length){
+list.innerHTML = "";
 
-info.textContent="";
-return;
+if(!input.files.length) return;
+
+for(let file of input.files){
+
+const item = document.createElement("div");
+
+item.textContent =
+"✅ " + file.name;
+
+list.appendChild(item);
 
 }
-
-let text="";
-
-for(let i=0;i<input.files.length;i++){
-
-text +=
-"✅ " + input.files[i].name + "<br>";
-
-}
-
-info.innerHTML=text;
-
 }
 
 
-function saveGift(){
+function prepareGift(){
 
 const code =
 document.getElementById("giftCode").value.trim();
@@ -231,7 +215,7 @@ return;
 }
 
 document.getElementById("saveMsg").textContent =
-"✅ البيانات جاهزة";
+"✅ الهدية جاهزة للربط والحفظ";
 
 }
 
