@@ -1,112 +1,145 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>لوحة التحكم ❤️</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحكم الهدايا</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
+
 body{
   margin:0;
   font-family:Arial,sans-serif;
-  background:#f8f1f5;
+  background:#f8f1f4;
   color:#333;
+  padding:20px;
 }
+
 .box{
-  width:min(92%,600px);
-  margin:30px auto;
+  max-width:650px;
+  margin:auto;
   background:white;
   padding:25px;
-  border-radius:22px;
-  box-shadow:0 8px 30px #0001;
+  border-radius:20px;
+  box-shadow:0 5px 25px #0001;
 }
-h1{text-align:center}
-input,textarea,button{
+
+h1{
+  text-align:center;
+  color:#9b526e;
+}
+
+input,textarea{
   width:100%;
   padding:13px;
-  margin:7px 0 14px;
+  margin:7px 0 15px;
   border:1px solid #ddd;
-  border-radius:12px;
+  border-radius:10px;
   font-size:16px;
 }
-textarea{min-height:130px;resize:vertical}
-button{
-  background:#9b5577;
-  color:white;
-  border:0;
-  cursor:pointer;
+
+textarea{
+  min-height:120px;
+  resize:vertical;
+}
+
+label{
   font-weight:bold;
 }
-.hidden{display:none}
+
+button{
+  width:100%;
+  padding:15px;
+  border:0;
+  border-radius:12px;
+  background:#9b526e;
+  color:white;
+  font-size:17px;
+  cursor:pointer;
+}
+
+button:disabled{
+  opacity:.6;
+}
+
 #result{
   margin-top:20px;
   padding:15px;
-  background:#f5e9ef;
-  border-radius:15px;
-  word-break:break-all;
-}
-.file{
-  background:#fafafa;
-  padding:12px;
   border-radius:12px;
+  display:none;
+  word-break:break-word;
+}
+
+.success{
+  background:#e8f7ed;
+  color:#176b35;
+}
+
+.error{
+  background:#fdeaea;
+  color:#a11;
+}
+
+a{
+  color:#8d4560;
+  font-weight:bold;
 }
 </style>
 </head>
 
 <body>
 
-<div class="box" id="loginBox">
-  <h1>🔐 لوحة التحكم</h1>
+<div class="box">
 
-  <input id="adminPass" type="password" placeholder="كلمة سر الإدارة">
+<h1>🎁 لوحة تحكم الهدايا</h1>
 
-  <button onclick="login()">دخول</button>
-</div>
+<div id="loginBox">
 
+<label>كلمة دخول لوحة التحكم</label>
+<input id="adminPassword" type="password">
 
-<div class="box hidden" id="adminBox">
-
-  <h1>🎁 إنشاء هدية</h1>
-
-  <label>كود الهدية</label>
-  <input id="code" placeholder="مثال: ahmed01">
-
-  <label>كلمة سر العميل</label>
-  <input id="clientPassword" placeholder="كلمة السر التي سيدخل بها العميل">
-
-  <label>عنوان الهدية</label>
-  <input id="title" placeholder="إلى الشخص المميز ❤️">
-
-  <label>تاريخ البداية</label>
-  <input id="startDate" type="datetime-local">
-
-  <label>الرسالة</label>
-  <textarea id="message" placeholder="اكتبي الرسالة هنا..."></textarea>
-
-  <div class="file">
-    <label>📸 الصور</label>
-    <input id="photos" type="file" accept="image/*" multiple>
-  </div>
-
-  <div class="file">
-    <label>🎵 الأغنية</label>
-    <input id="audio" type="file" accept="audio/*">
-  </div>
-
-  <div class="file">
-    <label>🎬 الفيديو</label>
-    <input id="video" type="file" accept="video/*">
-  </div>
-
-  <button id="saveBtn" onclick="saveGift()">
-    تجهيز الهدية ❤️
-  </button>
-
-  <div id="result" class="hidden"></div>
+<button onclick="login()">دخول</button>
 
 </div>
 
+<div id="panel" style="display:none;">
+
+<label>كود الهدية</label>
+<input id="code" placeholder="مثال: ahmed01">
+
+<label>كلمة سر العميل</label>
+<input id="clientPassword" placeholder="مثال: 1234">
+
+<label>عنوان الهدية</label>
+<input id="title" placeholder="مثال: أجمل هدية ❤️">
+
+<label>تاريخ بداية العلاقة</label>
+<input id="startDate" type="datetime-local">
+
+<label>الرسالة</label>
+<textarea id="message" placeholder="اكتبي رسالة الهدية هنا"></textarea>
+
+<label>الصور</label>
+<input id="photos" type="file" accept="image/*" multiple>
+
+<label>الأغنية</label>
+<input id="audio" type="file" accept="audio/*">
+
+<label>الفيديو</label>
+<input id="video" type="file" accept="video/*">
+
+<button id="saveBtn" onclick="saveGift()">
+تجهيز الهدية 🎁
+</button>
+
+<div id="result"></div>
+
+</div>
+
+</div>
 
 <script>
 
@@ -121,139 +154,218 @@ const ADMIN_PASSWORD = "مريوم";
 
 function login(){
 
-  const p = document.getElementById("adminPass").value;
+  const password =
+    document.getElementById("adminPassword").value;
 
-  if(p !== ADMIN_PASSWORD){
-    alert("كلمة السر غلط");
-    return;
+  if(password === ADMIN_PASSWORD){
+
+    document.getElementById("loginBox").style.display="none";
+
+    document.getElementById("panel").style.display="block";
+
+  }else{
+
+    alert("كلمة المرور غلط");
+
   }
-
-  document.getElementById("loginBox").classList.add("hidden");
-  document.getElementById("adminBox").classList.remove("hidden");
 }
 
 
-async function uploadFile(file, code){
+function showResult(message,type){
 
-  if(!file) return "";
+  const result =
+    document.getElementById("result");
+
+  result.style.display="block";
+
+  result.className=type;
+
+  result.innerHTML=message;
+
+}
+
+
+async function uploadFile(file){
+
+  if(!file){
+    return null;
+  }
 
   const safeName =
-    Date.now() + "_" +
-    Math.random().toString(36).slice(2) + "_" +
-    file.name.replace(/[^\w.\-]/g,"_");
+    file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
 
-  const path = code + "/" + safeName;
+  const path =
+    "gifts/" +
+    Date.now() +
+    "_" +
+    Math.random().toString(36).substring(2) +
+    "_" +
+    safeName;
 
-  const response = await fetch(
-    SUPABASE_URL +
-    "/storage/v1/object/gift-files/" +
-    encodeURIComponent(path),
-    {
-      method:"POST",
-      headers:{
-        "apikey":SUPABASE_KEY,
-        "Authorization":"Bearer " + SUPABASE_KEY,
-        "Content-Type":file.type || "application/octet-stream"
-      },
-      body:file
-    }
-  );
+  const response =
+    await fetch(
+      SUPABASE_URL +
+      "/storage/v1/object/gift-files/" +
+      path,
+      {
+        method:"POST",
+
+        headers:{
+          "apikey":SUPABASE_KEY,
+          "Authorization":"Bearer " + SUPABASE_KEY,
+          "Content-Type":file.type || "application/octet-stream"
+        },
+
+        body:file
+      }
+    );
 
   if(!response.ok){
 
-    const errorText = await response.text();
+    const errorText =
+      await response.text();
 
     throw new Error(
       "فشل رفع الملف: " + errorText
     );
+
   }
 
-  return SUPABASE_URL +
+  return (
+    SUPABASE_URL +
     "/storage/v1/object/public/gift-files/" +
-    path.split("/").map(encodeURIComponent).join("/");
+    path
+  );
 }
 
 
 async function saveGift(){
 
-  const btn = document.getElementById("saveBtn");
+  const button =
+    document.getElementById("saveBtn");
 
-  const code =
-    document.getElementById("code").value.trim();
+  button.disabled=true;
 
-  const clientPassword =
-    document.getElementById("clientPassword").value;
-
-  const title =
-    document.getElementById("title").value.trim();
-
-  const startDate =
-    document.getElementById("startDate").value;
-
-  const message =
-    document.getElementById("message").value.trim();
-
-  const photoFiles =
-    [...document.getElementById("photos").files];
-
-  const audioFile =
-    document.getElementById("audio").files[0];
-
-  const videoFile =
-    document.getElementById("video").files[0];
-
-
-  if(!code){
-    alert("اكتبي كود الهدية");
-    return;
-  }
-
-  if(!clientPassword){
-    alert("اكتبي كلمة سر العميل");
-    return;
-  }
-
-
-  btn.disabled = true;
-  btn.textContent = "جاري تجهيز الهدية...";
-
+  button.innerText="جاري الحفظ...";
 
   try{
 
-    /* رفع الصور */
+    const code =
+      document.getElementById("code").value.trim();
 
-    const photoUrls = [];
+    const clientPassword =
+      document.getElementById("clientPassword").value;
 
-    for(const file of photoFiles){
+    const title =
+      document.getElementById("title").value.trim();
 
-      const url =
-        await uploadFile(file,code);
+    const startDate =
+      document.getElementById("startDate").value;
 
-      photoUrls.push(url);
+    const message =
+      document.getElementById("message").value.trim();
+
+
+    if(!code){
+
+      throw new Error("اكتبي كود الهدية");
+
+    }
+
+    if(!clientPassword){
+
+      throw new Error("اكتبي كلمة سر العميل");
+
+    }
+
+    if(!title){
+
+      throw new Error("اكتبي عنوان الهدية");
+
     }
 
 
-    /* رفع الأغنية */
+    /*
+      مهم:
+      الملفات لا يتم رفعها إلا لو المستخدم
+      اختار ملفات بالفعل.
+    */
 
-    let audioUrl = "";
+    let photoUrls=[];
+    let audioUrl=null;
+    let videoUrl=null;
 
+
+    const photoFiles =
+      document.getElementById("photos").files;
+
+    const audioFile =
+      document.getElementById("audio").files[0];
+
+    const videoFile =
+      document.getElementById("video").files[0];
+
+
+    // رفع الصور فقط لو فيه صور
+    if(photoFiles.length > 0){
+
+      for(const file of photoFiles){
+
+        const url =
+          await uploadFile(file);
+
+        if(url){
+          photoUrls.push(url);
+        }
+
+      }
+
+    }
+
+
+    // رفع الأغنية فقط لو تم اختيار أغنية
     if(audioFile){
+
       audioUrl =
-        await uploadFile(audioFile,code);
+        await uploadFile(audioFile);
+
     }
 
 
-    /* رفع الفيديو */
-
-    let videoUrl = "";
-
+    // رفع الفيديو فقط لو تم اختيار فيديو
     if(videoFile){
+
       videoUrl =
-        await uploadFile(videoFile,code);
+        await uploadFile(videoFile);
+
     }
 
 
-    const giftData = {
+    const messagesData = {
+
+      text:message,
+
+      photos:photoUrls,
+
+      audio:audioUrl,
+
+      video:videoUrl
+
+    };
+
+
+    /*
+      نضع ID بأنفسنا لأن جدول gift
+      عندك الـ id ليس له Default.
+    */
+
+    const giftId =
+      Date.now();
+
+
+    const row = {
+
+      id:giftId,
 
       code:code,
 
@@ -266,92 +378,105 @@ async function saveGift(){
         ? new Date(startDate).toISOString()
         : null,
 
-      messages:JSON.stringify({
-
-        text:message,
-
-        photos:photoUrls,
-
-        audio:audioUrl,
-
-        video:videoUrl
-
-      })
+      messages:
+        JSON.stringify(messagesData)
 
     };
 
 
-    /* حفظ الهدية */
+    const response =
+      await fetch(
+        SUPABASE_URL +
+        "/rest/v1/gift",
+        {
 
-    const response = await fetch(
-      SUPABASE_URL + "/rest/v1/gift",
-      {
-        method:"POST",
+          method:"POST",
 
-        headers:{
-          "apikey":SUPABASE_KEY,
-          "Authorization":"Bearer " + SUPABASE_KEY,
-          "Content-Type":"application/json",
-          "Prefer":"return=representation"
-        },
+          headers:{
 
-        body:JSON.stringify(giftData)
-      }
-    );
+            "apikey":SUPABASE_KEY,
+
+            "Authorization":
+              "Bearer " + SUPABASE_KEY,
+
+            "Content-Type":
+              "application/json",
+
+            "Prefer":
+              "return=representation"
+
+          },
+
+          body:
+            JSON.stringify(row)
+
+        }
+      );
 
 
     if(!response.ok){
 
-      const error =
+      const errorText =
         await response.text();
 
       throw new Error(
-        "فشل حفظ الهدية: " + error
+        "فشل حفظ الهدية: " +
+        errorText
       );
+
     }
 
 
-    const link =
-      location.origin +
-      location.pathname.replace(
-        "admin.html",
-        ""
-      ) +
+    const siteUrl =
+      "https://mariamahmed2332007-a11y.github.io/gift-site/";
+
+    const giftLink =
+      siteUrl +
       "?code=" +
       encodeURIComponent(code);
 
 
-    const result =
-      document.getElementById("result");
+    showResult(
 
-    result.classList.remove("hidden");
+      "✅ تم حفظ الهدية بنجاح!<br><br>" +
 
-    result.innerHTML = `
-      <strong>✅ الهدية اتجهزت</strong>
-      <br><br>
-      رابط العميل:
-      <br>
-      <a href="${link}" target="_blank">${link}</a>
-      <br><br>
-      <button onclick="navigator.clipboard.writeText('${link}')">
-        📋 نسخ الرابط
-      </button>
-    `;
+      "رابط الهدية:<br>" +
+
+      "<a href=\"" +
+      giftLink +
+      "\" target=\"_blank\">" +
+      giftLink +
+      "</a><br><br>" +
+
+      "انسخي الرابط وابعتيه للعميل.",
+
+      "success"
+
+    );
 
 
   }catch(error){
 
-    alert(error.message);
+    showResult(
+
+      "❌ حصل خطأ:<br><br>" +
+      error.message,
+
+      "error"
+
+    );
 
   }finally{
 
-    btn.disabled = false;
-    btn.textContent = "تجهيز الهدية ❤️";
+    button.disabled=false;
+
+    button.innerText="تجهيز الهدية 🎁";
 
   }
+
 }
 
 </script>
 
 </body>
-   </html>
+  </html>
