@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحة التحكم</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#f7f1f5;
+color:#333
+}
+.box{
+max-width:650px;
+margin:25px auto;
+padding:20px
+}
+.card{
+background:white;
+padding:22px;
+margin-bottom:18px;
+border-radius:20px;
+box-shadow:0 5px 18px #00000012
+}
+h1,h2{text-align:center}
+input,textarea,button{
+width:100%;
+padding:13px;
+margin-top:10px;
+border:1px solid #ddd;
+border-radius:12px;
+font-size:16px
+}
+textarea{min-height:120px}
+button{
+background:#222;
+color:white;
+border:0
+}
+.hidden{display:none}
+.msg{text-align:center;margin-top:12px}
+.fileBox{
+border:2px dashed #ddd;
+padding:15px;
+border-radius:15px;
+margin-top:10px
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<!-- LOGIN -->
+<div class="card" id="loginBox">
+<h1>🔐 لوحة التحكم</h1>
+
+<input
+type="password"
+id="adminPassword"
+placeholder="كلمة السر">
+
+<button onclick="login()">دخول</button>
+
+<div class="msg" id="loginMsg"></div>
+</div>
+
+
+<!-- ADMIN -->
+<div id="adminPanel" class="hidden">
+
+<div class="card">
+<h1>🎁 إنشاء هدية</h1>
+
+<input id="giftCode"
+placeholder="كود الهدية">
+
+<input id="giftPassword"
+placeholder="كلمة سر العميل">
+
+<input id="giftTitle"
+placeholder="عنوان الهدية">
+
+<label>تاريخ بداية العداد</label>
+<input type="datetime-local" id="startDate">
+
+<textarea
+id="giftMessage"
+placeholder="رسالة الهدية">
+</textarea>
+</div>
+
+
+<div class="card">
+<h2>📸 الصور</h2>
+
+<div class="fileBox">
+<input
+type="file"
+id="photos"
+accept="image/*"
+multiple
+onchange="showFiles('photos','photoInfo')">
+
+<div id="photoInfo"></div>
+</div>
+</div>
+
+
+<div class="card">
+<h2>🎵 الأغنية</h2>
+
+<div class="fileBox">
+<input
+type="file"
+id="audio"
+accept="audio/*"
+onchange="showFiles('audio','audioInfo')">
+
+<div id="audioInfo"></div>
+</div>
+</div>
+
+
+<div class="card">
+<h2>🎥 الفيديو</h2>
+
+<div class="fileBox">
+<input
+type="file"
+id="video"
+accept="video/*"
+onchange="showFiles('video','videoInfo')">
+
+<div id="videoInfo"></div>
+</div>
+</div>
+
+
+<div class="card">
+
+<button onclick="saveGift()">
+💾 حفظ بيانات الهدية
+</button>
+
+<div class="msg" id="saveMsg"></div>
+
+</div>
+
+</div>
+</div>
+
+
+<script>
+
+const ADMIN_PASSWORD = "مريوم";
+
+
+function login(){
+
+const pass =
+document.getElementById("adminPassword").value;
+
+if(pass === ADMIN_PASSWORD){
+
+document.getElementById("loginBox")
+.classList.add("hidden");
+
+document.getElementById("adminPanel")
+.classList.remove("hidden");
+
+}else{
+
+document.getElementById("loginMsg").textContent =
+"❌ كلمة السر غير صحيحة";
+
+}
+}
+
+
+function showFiles(inputId,infoId){
+
+const input =
+document.getElementById(inputId);
+
+const info =
+document.getElementById(infoId);
+
+if(!input.files.length){
+
+info.textContent="";
+return;
+
+}
+
+let text="";
+
+for(let i=0;i<input.files.length;i++){
+
+text +=
+"✅ " + input.files[i].name + "<br>";
+
+}
+
+info.innerHTML=text;
+
+}
+
+
+function saveGift(){
+
+const code =
+document.getElementById("giftCode").value.trim();
+
+const password =
+document.getElementById("giftPassword").value.trim();
+
+const title =
+document.getElementById("giftTitle").value.trim();
+
+if(!code || !password || !title){
+
+document.getElementById("saveMsg").textContent =
+"⚠️ اكتبي كود الهدية وكلمة السر والعنوان";
+
+return;
+}
+
+document.getElementById("saveMsg").textContent =
+"✅ البيانات جاهزة";
+
+}
+
+</script>
+
+</body>
+  </html>
