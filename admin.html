@@ -7,17 +7,20 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
 margin:0;
 font-family:Arial,sans-serif;
 background:#f7f1f5;
 color:#333
 }
+
 .box{
 max-width:650px;
 margin:auto;
 padding:20px
 }
+
 .card{
 background:#fff;
 padding:22px;
@@ -25,7 +28,9 @@ margin-bottom:18px;
 border-radius:20px;
 box-shadow:0 5px 18px #0001
 }
+
 h1,h2{text-align:center}
+
 input,textarea,button{
 width:100%;
 padding:13px;
@@ -34,18 +39,42 @@ border:1px solid #ddd;
 border-radius:12px;
 font-size:16px
 }
-textarea{min-height:120px}
+
+textarea{
+min-height:120px
+}
+
 button{
 background:#222;
 color:#fff;
-border:0
+border:0;
+cursor:pointer
 }
-.hidden{display:none}
-.msg{text-align:center;margin-top:12px}
+
+.hidden{
+display:none
+}
+
+.msg{
+text-align:center;
+margin-top:12px;
+line-height:1.8
+}
+
 .file-list{
 margin-top:10px;
 line-height:1.8;
 font-size:14px
+}
+
+.linkBox{
+background:#f5f5f5;
+padding:12px;
+border-radius:12px;
+margin-top:12px;
+word-break:break-all;
+direction:ltr;
+text-align:left
 }
 </style>
 </head>
@@ -55,6 +84,7 @@ font-size:14px
 <div class="box">
 
 <div class="card" id="loginBox">
+
 <h1>🔐 لوحة التحكم</h1>
 
 <input
@@ -65,17 +95,19 @@ placeholder="كلمة السر">
 <button onclick="login()">دخول</button>
 
 <div class="msg" id="loginMsg"></div>
+
 </div>
 
 
 <div id="adminPanel" class="hidden">
 
 <div class="card">
+
 <h1>🎁 إنشاء هدية</h1>
 
 <input
 id="giftCode"
-placeholder="كود الهدية">
+placeholder="كود الهدية مثل: AHMAD01">
 
 <input
 id="giftPassword"
@@ -86,16 +118,21 @@ id="giftTitle"
 placeholder="عنوان الهدية">
 
 <label>تاريخ بداية العداد</label>
-<input type="datetime-local" id="startDate">
+
+<input
+type="datetime-local"
+id="startDate">
 
 <textarea
 id="giftMessage"
-placeholder="اكتبي رسالة الهدية هنا">
+placeholder="رسالة الهدية هنا">
 </textarea>
+
 </div>
 
 
 <div class="card">
+
 <h2>📸 الصور</h2>
 
 <input
@@ -106,10 +143,12 @@ multiple
 onchange="showFiles('photos','photoList')">
 
 <div class="file-list" id="photoList"></div>
+
 </div>
 
 
 <div class="card">
+
 <h2>🎵 الأغنية</h2>
 
 <input
@@ -119,10 +158,12 @@ accept="audio/*"
 onchange="showFiles('audio','audioList')">
 
 <div class="file-list" id="audioList"></div>
+
 </div>
 
 
 <div class="card">
+
 <h2>🎥 الفيديو</h2>
 
 <input
@@ -132,21 +173,60 @@ accept="video/*"
 onchange="showFiles('video','videoList')">
 
 <div class="file-list" id="videoList"></div>
+
 </div>
 
 
 <div class="card">
-<button onclick="prepareGift()">💾 تجهيز الهدية</button>
+
+<button onclick="saveGift()">
+💾 حفظ الهدية وإنشاء الرابط
+</button>
+
 <div class="msg" id="saveMsg"></div>
+
+<div id="linkArea" class="hidden">
+
+<h3>🔗 رابط الهدية</h3>
+
+<div class="linkBox" id="giftLink"></div>
+
+<button onclick="copyGiftLink()">
+📋 نسخ الرابط
+</button>
+
 </div>
 
 </div>
+
+</div>
+
 </div>
 
 
 <script>
 
+/* =========================
+   بيانات Supabase
+========================= */
+
+const SUPABASE_URL =
+"https://nuiemqobbetbpfaughik.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_hJq2w7yXBvryhgpw9m1_hg_Tq4hzEBc";
+
+
+/* =========================
+   كلمة سر لوحة التحكم
+========================= */
+
 const ADMIN_PASSWORD = "مريوم";
+
+
+/* =========================
+   تسجيل الدخول
+========================= */
 
 function login(){
 
@@ -167,8 +247,13 @@ document.getElementById("loginMsg").textContent =
 "❌ كلمة السر غير صحيحة";
 
 }
+
 }
 
+
+/* =========================
+   عرض الملفات
+========================= */
 
 function showFiles(inputId,listId){
 
@@ -182,9 +267,10 @@ list.innerHTML = "";
 
 if(!input.files.length) return;
 
-for(let file of input.files){
+for(const file of input.files){
 
-const item = document.createElement("div");
+const item =
+document.createElement("div");
 
 item.textContent =
 "✅ " + file.name;
@@ -192,30 +278,270 @@ item.textContent =
 list.appendChild(item);
 
 }
+
 }
 
 
-function prepareGift(){
+/* =========================
+   رفع ملف إلى Supabase
+========================= */
+
+async function uploadFile(file,code,type){
+
+const safeName =
+Date.now() + "_" +
+file.name.replace(/[^\w.\-\u0600-\u06FF]/g,"_");
+
+const path =
+code + "/" + type + "/" + safeName;
+
+const response =
+await fetch(
+SUPABASE_URL +
+"/storage/v1/object/gift-files/" +
+encodeURIComponent(path),
+{
+method:"POST",
+
+headers:{
+"apikey":SUPABASE_KEY,
+"Authorization":"Bearer " + SUPABASE_KEY,
+"Content-Type":file.type || "application/octet-stream",
+"x-upsert":"true"
+},
+
+body:file
+});
+
+if(!response.ok){
+
+const error =
+await response.text();
+
+throw new Error(error);
+
+}
+
+return SUPABASE_URL +
+"/storage/v1/object/public/gift-files/" +
+path.split("/").map(encodeURIComponent).join("/");
+}
+
+
+/* =========================
+   حفظ الهدية
+========================= */
+
+async function saveGift(){
+
+const saveMsg =
+document.getElementById("saveMsg");
+
+const linkArea =
+document.getElementById("linkArea");
 
 const code =
-document.getElementById("giftCode").value.trim();
+document.getElementById("giftCode")
+.value.trim();
 
 const password =
-document.getElementById("giftPassword").value.trim();
+document.getElementById("giftPassword")
+.value.trim();
 
 const title =
-document.getElementById("giftTitle").value.trim();
+document.getElementById("giftTitle")
+.value.trim();
+
+const startDate =
+document.getElementById("startDate")
+.value;
+
+const message =
+document.getElementById("giftMessage")
+.value.trim();
+
+const photosInput =
+document.getElementById("photos");
+
+const audioInput =
+document.getElementById("audio");
+
+const videoInput =
+document.getElementById("video");
+
 
 if(!code || !password || !title){
 
-document.getElementById("saveMsg").textContent =
+saveMsg.textContent =
 "⚠️ اكتبي كود الهدية وكلمة السر والعنوان";
 
 return;
+
 }
 
-document.getElementById("saveMsg").textContent =
-"✅ الهدية جاهزة للربط والحفظ";
+
+saveMsg.textContent =
+"⏳ جاري حفظ الهدية ورفع الملفات...";
+
+linkArea.classList.add("hidden");
+
+
+try{
+
+/* رفع الصور */
+
+const photos = [];
+
+for(const file of photosInput.files){
+
+const url =
+await uploadFile(file,code,"photos");
+
+photos.push(url);
+
+}
+
+
+/* رفع الأغنية */
+
+let audio = "";
+
+if(audioInput.files.length){
+
+audio =
+await uploadFile(
+audioInput.files[0],
+code,
+"audio"
+);
+
+}
+
+
+/* رفع الفيديو */
+
+let video = "";
+
+if(videoInput.files.length){
+
+video =
+await uploadFile(
+videoInput.files[0],
+code,
+"video"
+);
+
+}
+
+
+/* البيانات الإضافية */
+
+const mediaData = {
+
+message:message,
+
+photos:photos,
+
+audio:audio,
+
+video:video
+
+};
+
+
+/* حفظ الهدية */
+
+const response =
+await fetch(
+SUPABASE_URL + "/rest/v1/gift",
+{
+method:"POST",
+
+headers:{
+"apikey":SUPABASE_KEY,
+"Authorization":"Bearer " + SUPABASE_KEY,
+"Content-Type":"application/json",
+"Prefer":"return=representation"
+},
+
+body:JSON.stringify({
+
+code:code,
+
+password:password,
+
+title:title,
+
+start_date:
+startDate
+?
+new Date(startDate).toISOString()
+:
+null,
+
+messages:
+JSON.stringify(mediaData)
+
+})
+});
+
+
+if(!response.ok){
+
+const error =
+await response.text();
+
+throw new Error(error);
+
+}
+
+
+/* إنشاء الرابط */
+
+const giftLink =
+window.location.origin +
+window.location.pathname
+.replace("admin.html","") +
+"?code=" +
+encodeURIComponent(code);
+
+
+document.getElementById("giftLink")
+.textContent =
+giftLink;
+
+linkArea.classList.remove("hidden");
+
+saveMsg.textContent =
+"✅ تم حفظ الهدية وإنشاء الرابط بنجاح ❤️";
+
+
+}catch(error){
+
+console.error(error);
+
+saveMsg.textContent =
+"❌ حصل خطأ أثناء الحفظ: " +
+error.message;
+
+}
+
+}
+
+
+/* =========================
+   نسخ الرابط
+========================= */
+
+function copyGiftLink(){
+
+const link =
+document.getElementById("giftLink")
+.textContent;
+
+navigator.clipboard.writeText(link);
+
+alert("✅ تم نسخ رابط الهدية");
 
 }
 
